@@ -43,17 +43,11 @@ The implementation follows rigorous academic standards with comprehensive docume
 
 ```
 Graph_Prj/
-├── src/                    # Source files
-│   ├── main.c             # Main program entry point with interactive interface
-│   ├── havel_hakimi.c     # Graph construction from degree sequences
-│   ├── connectivity.c     # Graph connectivity analysis
-│   ├── clique.c           # Clique detection algorithms (backtracking & Bron-Kerbosch)
-│   ├── independent_set.c  # Maximum independent set algorithms
-│   ├── vertex_cover.c     # Vertex cover algorithms (exact, König's, approximation)
-│   ├── euler_path.c       # Euler path/cycle detection using Hierholzer's algorithm
-│   ├── line_graph.c       # Line graph generation
-│   ├── connectivity_number.c # Vertex connectivity calculation
-│   └── set_utils.c        # Set data structure utilities
+├── build/                 # Build artifacts (created automatically)
+│   ├── obj/              # Object files
+│   ├── dot_files/        # Generated DOT files
+│   ├── images/           # Generated PNG images
+│   └── graph_program     # Compiled executable
 ├── include/               # Header files
 │   ├── structs.h          # Core data structures (Graph, Node, Set, etc.)
 │   ├── havel_hakimi.h     # Graph construction function declarations
@@ -65,15 +59,41 @@ Graph_Prj/
 │   ├── line_graph.h       # Line graph function declarations
 │   ├── connectivity_number.h # Connectivity number function declarations
 │   └── set_utils.h        # Set utilities function declarations
-├── build/                 # Build artifacts (created automatically)
-│   ├── obj/              # Object files
-│   ├── dot_files/        # Generated DOT files
-│   ├── images/           # Generated PNG images
-│   └── graph_program     # Compiled executable
+├── src/                    # Source files
+│   ├── main.c             # Main program entry point with interactive interface
+│   ├── havel_hakimi.c     # Graph construction from degree sequences
+│   ├── connectivity.c     # Graph connectivity analysis
+│   ├── clique.c           # Clique detection algorithms (backtracking & Bron-Kerbosch)
+│   ├── independent_set.c  # Maximum independent set algorithms
+│   ├── vertex_cover.c     # Vertex cover algorithms (exact, König's, approximation)
+│   ├── euler_path.c       # Euler path/cycle detection using Hierholzer's algorithm
+│   ├── line_graph.c       # Line graph generation
+│   ├── connectivity_number.c # Vertex connectivity calculation
+│   └── set_utils.c        # Set data structure utilities
 ├── Makefile              # Build configuration
 ├── .gitignore           # Git ignore rules
 └── README.md            # This file
 ```
+
+## Dependencies
+
+### Required
+- **GCC**: C compiler with C11 support
+- **Make**: Build system
+- **Standard C Library**: malloc, stdio, stdlib, string, math, stdbool
+
+### Optional
+- **Graphviz**: For generating PNG images from DOT files
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get install graphviz
+  
+  # macOS
+  brew install graphviz
+  
+  # CentOS/RHEL/Fedora
+  sudo dnf install graphviz
+  ```
 
 ## Build Instructions
 
@@ -340,8 +360,6 @@ Non-trivial cliques (size ≥ 3):
 
 ## Data Structures
 
-### Core Structures
-
 ```c
 /**
  * Graph representation using adjacency matrix
@@ -498,27 +516,6 @@ Vertex connectivity: 2
 - **Adjacency Matrix**: O(n²) space - suitable for dense graphs
 - **Set Operations**: Dynamic allocation with automatic resizing
 - **Temporary Storage**: Algorithms clean up automatically
-
-## Dependencies
-
-### Required
-- **GCC**: C compiler with C11 support
-- **Make**: Build system
-- **Standard C Library**: malloc, stdio, stdlib, string, math, stdbool
-
-### Optional
-- **Graphviz**: For generating PNG images from DOT files
-  ```bash
-  # Ubuntu/Debian
-  sudo apt-get install graphviz
-  
-  # macOS
-  brew install graphviz
-  
-  # CentOS/RHEL/Fedora
-  sudo dnf install graphviz
-  ```
-
 ## Output Files
 
 The program automatically creates the following directory structure and files:
