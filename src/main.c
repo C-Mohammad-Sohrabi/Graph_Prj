@@ -1,8 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
+
+#if defined(_WIN32)
+#include <direct.h> /* _mkdir */
+#define PLATFORM_MKDIR(path) _mkdir(path)
+#define NULL_DEVICE "NUL"
+#else
+#include <sys/stat.h> /* mkdir */
+#include <sys/types.h>
+#define PLATFORM_MKDIR(path) mkdir(path, 0755)
+#define NULL_DEVICE "/dev/null"
+#endif
 
 #include "structs.h"
 #include "set_utils.h"
@@ -81,17 +92,37 @@
  * @note All user input is validated before processing
  * @note Memory management is handled automatically
  */
+/**
+ * @brief Creates a directory if it does not already exist (cross-platform)
+ *
+ * Wraps the platform-specific mkdir call (POSIX mkdir() vs Windows _mkdir())
+ * and silently ignores the "already exists" case, which is the normal
+ * situation on every run after the first.
+ */
+static void ensure_directory_exists(const char *path)
+{
+    if (PLATFORM_MKDIR(path) != 0 && errno != EEXIST)
+    {
+        fprintf(stderr, "Warning: could not create directory '%s'\n", path);
+    }
+}
+
 int main()
 {
     /* ========================================================================
      * SETUP PHASE: Directory creation and file cleanup
      * ========================================================================*/
 
-    // Create necessary directory structure for output files
-    system("mkdir -p build/dot_files 2> /dev/null");
-    system("mkdir -p build/images 2> /dev/null");
+    // Create necessary directory structure for output files.
+    // Portable replacement for the old POSIX-only "mkdir -p" shell calls,
+    // which did not work on Windows. Parent directories are created first.
+    ensure_directory_exists("build");
+    ensure_directory_exists("build/dot_files");
+    ensure_directory_exists("build/images");
 
-    // Clean up any existing output files from previous runs
+    // Clean up any existing output files from previous runs.
+    // remove() simply fails (harmlessly) if the file doesn't exist yet, so
+    // there is no need for a separate, POSIX-only access()/F_OK check here.
     const char *files[] = {
         "build/dot_files/graph.dot",      // Main graph DOT file
         "build/images/graph.png",         // Main graph PNG image
@@ -101,8 +132,7 @@ int main()
     int num_files = sizeof(files) / sizeof(files[0]);
     for (int i = 0; i < num_files; i++)
     {
-        if (access(files[i], F_OK) == 0)
-            remove(files[i]);
+        remove(files[i]);
     }
 
     /* ========================================================================
@@ -172,6 +202,14 @@ int main()
     printf("\nEnter the number of nodes: ");
     if (scanf("%d", &n) != 1)
         return 1;
+
+    // Validate node count: without this check a zero/negative value here
+    // turns into a huge (size_t) allocation size below and crashes.
+    if (n <= 0)
+    {
+        printf("Error: number of nodes must be positive.\n");
+        return 1;
+    }
 
     // Allocate memory for node structures and degree arrays
     Node *nodes = malloc(n * sizeof(Node));
@@ -280,8 +318,16 @@ int main()
     printf("Graph generated successfully!\n");
     printf("DOT file: build/dot_files/graph.dot\n");
 
-    // Generate PNG image using Graphviz (if available)
-    system("dot -Tpng build/dot_files/graph.dot -o build/images/graph.png 2> /dev/null");
+    // Generate PNG image using Graphviz (if available).
+    // The null-device redirection target differs on Windows ("NUL") vs
+    // POSIX ("/dev/null"), so it's selected via the NULL_DEVICE macro.
+    {
+        char cmd[256];
+        snprintf(cmd, sizeof(cmd),
+                 "dot -Tpng build/dot_files/graph.dot -o build/images/graph.png 2> %s",
+                 NULL_DEVICE);
+        system(cmd);
+    }
     printf("PNG visualization: build/images/graph.png\n");
 
     /* ========================================================================
@@ -319,8 +365,14 @@ int main()
         if (strcmp(line_graph_choice, "yes") == 0)
         {
             generate_line_graph(&graph);
-            // Generate PNG for line graph
-            system("dot -Tpng build/dot_files/line_graph.dot -o build/images/line_graph.png 2> /dev/null");
+            // Generate PNG for line graph (see NULL_DEVICE note above)
+            {
+                char cmd[256];
+                snprintf(cmd, sizeof(cmd),
+                         "dot -Tpng build/dot_files/line_graph.dot -o build/images/line_graph.png 2> %s",
+                         NULL_DEVICE);
+                system(cmd);
+            }
             printf("Line graph files: build/dot_files/line_graph.dot and build/images/line_graph.png\n");
         }
 

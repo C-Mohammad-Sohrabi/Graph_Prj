@@ -15,8 +15,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdbool.h>
+/* NOTE: <unistd.h> was included here previously but nothing in this header
+ * actually used it. It is POSIX-only and does not exist on Windows/MSVC,
+ * so it has been removed as part of making the project build cross-platform. */
 
 /**
  * @struct Node

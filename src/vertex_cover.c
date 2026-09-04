@@ -726,7 +726,7 @@ Set *vertex_cover_bipartite_konig(Graph *graph)
     free(right_mask);
 
     int *pairU = NULL, *pairV = NULL;
-    int match_size = hopcroft_karp(graph, left_nodes, left_n, right_nodes, right_n, &pairU, &pairV);
+    hopcroft_karp(graph, left_nodes, left_n, right_nodes, right_n, &pairU, &pairV);
 
     /* If no matching arrays (empty sides), handle trivial cases */
     if (left_n == 0 || right_n == 0)
