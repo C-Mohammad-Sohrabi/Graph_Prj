@@ -1,8 +1,14 @@
 # =============================================================================
 # Simple Makefile - Graph Theory Project
+#
+# This Makefile targets Unix-like shells: Linux, macOS, WSL, or MSYS2/Git-Bash
+# on Windows (i.e. anywhere a POSIX `mkdir -p` is available). If you're on
+# plain Windows without one of those (e.g. plain cmd.exe + MSVC), use the
+# cross-platform CMakeLists.txt instead - see README.md.
 # =============================================================================
 CC = gcc
-CFLAGS = -g -Wall -Wextra -std=c11 -lm
+CFLAGS = -g -Wall -Wextra -std=c11
+LDLIBS = -lm
 SRCDIR = src
 INCDIR = include
 BUILDDIR = build
@@ -35,7 +41,7 @@ all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
 	@echo "==> Linking $@..."
-	$(CC) $(OBJECTS) -o $@ $(CFLAGS)
+	$(CC) $(OBJECTS) -o $@ $(CFLAGS) $(LDLIBS)
 	@echo "==> Build complete: $@"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)

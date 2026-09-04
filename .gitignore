@@ -1,2 +1,16 @@
 .vscode
 build
+
+# CMake (cross-platform build system)
+cmake-build*/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+
+# Common IDE/editor artifacts
+.idea/
+*.user
+*.suo

@@ -97,19 +97,63 @@ Graph_Prj/
 
 ## Build Instructions
 
+The project builds identically on **Windows**, **macOS**, and **Linux** using
+CMake. A traditional Makefile is also included for people already on a
+Unix-like shell (Linux, macOS, WSL, or Git-Bash/MSYS2 on Windows) who just
+want to type `make`.
+
 ### Prerequisites
 
-- **GCC**: C compiler with C11 support
-- **Make**: Build system
+- **A C11 compiler**: GCC or Clang (Linux/macOS/MinGW), or MSVC (Windows)
+- **CMake ≥ 3.10** (recommended, cross-platform) - https://cmake.org/download/
+  - _or_ **GNU Make** if you prefer the classic Makefile (Linux/macOS/WSL/MSYS2)
 - **Graphviz** (optional): For generating PNG images from DOT files
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get install graphviz
 
-### Building the Project
+  # macOS
+  brew install graphviz
+
+  # Windows (winget or choco)
+  winget install Graphviz.Graphviz
+  # or: choco install graphviz
+
+  # CentOS/RHEL/Fedora
+  sudo dnf install graphviz
+  ```
+  Make sure `dot` ends up on your `PATH` - the program calls it via
+  `system()` to render PNGs, and simply skips PNG generation (no crash) if
+  it isn't found.
+
+### Option A: CMake (recommended, works on Windows/macOS/Linux)
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd Graph_Prj
 
+# Configure (creates a cmake-build/ directory; only needs doing once)
+cmake -B cmake-build -S .
+
+# Build
+cmake --build cmake-build
+
+# Run (from the project root, so build/dot_files and build/images
+# get created in the right place)
+./cmake-build/bin/graph_program        # Linux / macOS
+cmake-build\bin\graph_program.exe      # Windows (cmd/PowerShell)
+# On Windows with a multi-config generator (e.g. Visual Studio), the
+# binary may instead be at cmake-build\bin\Debug\graph_program.exe
+```
+
+On Windows you can instead open the folder directly in **Visual Studio**
+("Open a local folder") or **CLion**, both of which detect `CMakeLists.txt`
+automatically and build/run/debug without touching a terminal.
+
+### Option B: Makefile (Linux, macOS, WSL, or MSYS2/Git-Bash on Windows)
+
+```bash
 # Build the project
 make
 
@@ -120,12 +164,24 @@ make
 make clean
 ```
 
+This Makefile relies on a POSIX shell (`mkdir -p`, etc.), so it will **not**
+work in a plain Windows `cmd.exe`/PowerShell prompt with MSVC - use Option A
+(CMake) there instead, or run it inside WSL/MSYS2/Git-Bash.
+
 ### Build Targets
 
-- `make` or `make all`: Build the complete project
-- `make clean`: Remove all build artifacts
-- Object files are automatically created in `build/obj/`
-- The executable is created as `build/graph_program`
+- `make` or `make all` (Makefile) / `cmake --build cmake-build` (CMake): Build the complete project
+- `make clean` (Makefile): Remove all build artifacts
+- Object files are automatically created in `build/obj/` (Makefile) or `cmake-build/` (CMake)
+- The executable is created as `build/graph_program` (Makefile) or `cmake-build/bin/graph_program[.exe]` (CMake)
+
+### A note on the `build/` directory
+
+Regardless of which build method you use, **when you run the program** it
+creates (or reuses) a `build/dot_files/` and `build/images/` folder in your
+current working directory for its DOT/PNG output - this is separate from
+CMake's own `cmake-build/` folder. Run the executable from the project root
+so these end up in a predictable place.
 
 ## Usage
 
