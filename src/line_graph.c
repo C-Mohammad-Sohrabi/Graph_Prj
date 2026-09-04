@@ -41,7 +41,10 @@ int extract_edges_from_adjacency(Graph *graph, Edge **edges)
 
 void build_node_edges_mapping(Edge *edges, int edge_count, int node_count, int ***node_edges, int **node_edges_count)
 {
-    *node_edges = malloc(node_count * sizeof(int *));
+    /* calloc (not malloc) so that nodes with zero incident edges get a NULL
+     * pointer instead of an uninitialized one -- otherwise free()'ing that
+     * garbage pointer later (see generate_line_graph) is undefined behavior. */
+    *node_edges = calloc(node_count, sizeof(int *));
     *node_edges_count = calloc(node_count, sizeof(int));
 
     // Count incident edges for each node
@@ -73,6 +76,7 @@ void build_node_edges_mapping(Edge *edges, int edge_count, int node_count, int *
 
 void build_line_graph(Edge *edges, int edge_count, int **node_edges, int *node_edges_count, int node_count, AdjList **line_graph_adj)
 {
+    (void)edges; /* not needed here; kept in the signature for API symmetry with the other builders */
     *line_graph_adj = malloc(edge_count * sizeof(AdjList));
     for (int i = 0; i < edge_count; i++)
     {

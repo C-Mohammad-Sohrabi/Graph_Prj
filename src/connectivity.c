@@ -60,10 +60,13 @@ Connectivity check_connectivity(Graph *graph) {
         
         // Initialize BFS from vertex 0 following directed edges only
         front = rear = 0;
-        queue[rear++] = 0;           // Start BFS from vertex 0
-        visited[0] = true;
-        int reachable_count = 1;
-        
+        int reachable_count = 0;
+        if (graph->node_count > 0) {
+            queue[rear++] = 0;           // Start BFS from vertex 0
+            visited[0] = true;
+            reachable_count = 1;
+        }
+
         // BFS traversal following directed edges
         while (front < rear) {
             int current = queue[front++];
@@ -89,10 +92,13 @@ Connectivity check_connectivity(Graph *graph) {
         free(visited);
         visited = calloc(graph->node_count, sizeof(bool));
         front = rear = 0;
-        queue[rear++] = 0;
-        visited[0] = true;
-        reachable_count = 1;
-        
+        reachable_count = 0;
+        if (graph->node_count > 0) {
+            queue[rear++] = 0;
+            visited[0] = true;
+            reachable_count = 1;
+        }
+
         // BFS treating all edges as bidirectional
         while (front < rear) {
             int current = queue[front++];
